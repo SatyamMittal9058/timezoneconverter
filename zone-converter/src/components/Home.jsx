@@ -87,8 +87,8 @@ function Home() {
 
   return (
     <>
-      <div className="w-full md:w-1/2 m-auto border-2 py-2 px-2 my-1">
-        <div className="flex gap-8">
+      <div className="w-full md:w-1/2 m-auto border-2 py-2 md:px-2 my-1">
+        <div className="flex gap-0.5 md:gap-2">
           <div className="flex w-auto gap-2">
             <input
               ref={inputRef}
@@ -105,7 +105,7 @@ function Home() {
               +
             </button>
           </div>
-          <div className="space-x-2 font-bold text-xl">
+          <div className="font-bold text-xl flex item-center">
             <button
               className="border-2 px-1"
               onClick={() => setReverseOn(false)}
@@ -151,7 +151,6 @@ function Home() {
       </div>
       <DragDropContext
         onDragEnd={onDragEnd}
-        
       >
         <Droppable droppableId="zone">
           {(provided) => (

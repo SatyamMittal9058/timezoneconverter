@@ -4,11 +4,11 @@ import TimeZoneSlider from "./TimeZoneSlider";
 
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { toggleTheme } from "../store/slice/theme/themeSlice";
-import {useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 
 function Home() {
-  const dispatch=useDispatch();
-  const toggle = useSelector(state => state.theme.toggle);
+  const dispatch = useDispatch();
+  const toggle = useSelector((state) => state.theme.toggle);
   const inputRef = useRef(null);
   const [value, setValue] = useState("");
   const [timezones, setTimezones] = useState([]);
@@ -17,7 +17,7 @@ function Home() {
     // { UTC: "12:34" },
     // { IST: "01:45" },
   ]);
-  
+
   const handleInputChange = (e) => {
     const inputValue = e.target.value.toLowerCase();
     setValue(inputValue);
@@ -54,9 +54,10 @@ function Home() {
     setValue("");
   };
   const [reverseOn, setReverseOn] = useState(false);
+
   const onDragEnd = (result) => {
-    const {source,destination}=result;
-    if (!destination ) {
+    const { source, destination } = result;
+    if (!destination) {
       return;
     }
 
@@ -148,33 +149,38 @@ function Home() {
           </div>
         )}
       </div>
-      <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="zone">
-        {(provided) => (
-          <div ref={provided.innerRef} {...provided.droppableProps}>
-            {reverseOn
-              ? [...selectedTimezone]
-                  .reverse()
-                  .map((timezone, index) => (
+      <DragDropContext
+        onDragEnd={onDragEnd}
+        
+      >
+        <Droppable droppableId="zone">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {reverseOn
+                ? [...selectedTimezone]
+                    .reverse()
+                    .map((timezone, index) => (
+                      <TimeZoneSlider
+                        index={index}
+                        key={index}
+                        timezone={timezone}
+                        onRemove={() =>
+                          removeTimezone(Object.keys(timezone)[0])
+                        }
+                      />
+                    ))
+                : selectedTimezone.map((timezone, index) => (
                     <TimeZoneSlider
                       index={index}
                       key={index}
                       timezone={timezone}
                       onRemove={() => removeTimezone(Object.keys(timezone)[0])}
                     />
-                  ))
-              : selectedTimezone.map((timezone, index) => (
-                  <TimeZoneSlider
-                    index={index}
-                    key={index}
-                    timezone={timezone}
-                    onRemove={() => removeTimezone(Object.keys(timezone)[0])}
-                  />
-                ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
+                  ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
       </DragDropContext>
     </>
   );

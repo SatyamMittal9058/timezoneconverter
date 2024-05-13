@@ -1,16 +1,23 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import moment from "moment-timezone";
 import TimeZoneSlider from "./TimeZoneSlider";
-import { ThemeContext } from "./context";
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { toggleTheme } from "../store/slice/theme/themeSlice";
+import {useDispatch, useSelector } from 'react-redux';
 
 function Home() {
+  const dispatch=useDispatch();
+  const toggle = useSelector(state => state.theme.toggle);
   const inputRef = useRef(null);
   const [value, setValue] = useState("");
   const [timezones, setTimezones] = useState([]);
   const [openList, setOpenList] = useState(false);
-  const [selectedTimezone, setSelectedTimezone] = useState([]);
-  const { toggle, toggletheme } = useContext(ThemeContext);
+  const [selectedTimezone, setSelectedTimezone] = useState([
+    // { UTC: "12:34" },
+    // { IST: "01:45" },
+  ]);
+  
   const handleInputChange = (e) => {
     const inputValue = e.target.value.toLowerCase();
     setValue(inputValue);
@@ -48,16 +55,17 @@ function Home() {
   };
   const [reverseOn, setReverseOn] = useState(false);
   const onDragEnd = (result) => {
-    if (!result.destination) {
-        return;
+    const {source,destination}=result;
+    if (!destination ) {
+      return;
     }
 
     const items = Array.from(selectedTimezone);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    const [reorderedItem] = items.splice(source.index, 1);
+    items.splice(destination.index, 0, reorderedItem);
 
     setSelectedTimezone(items);
-};
+  };
 
   const removeTimezone = (value) => {
     const updatedTimezones = selectedTimezone.filter(
@@ -65,6 +73,7 @@ function Home() {
     );
     setSelectedTimezone(updatedTimezones);
   };
+
   useEffect(() => {
     const UTCtime = moment().tz("UTC").format("hh:mm A");
     const ISTtime = moment().tz("Asia/Kolkata").format("hh:mm A");
@@ -110,7 +119,7 @@ function Home() {
             </button>
           </div>
           <div>
-            <button className="text-xl" onClick={toggletheme}>
+            <button className="text-xl" onClick={() => dispatch(toggleTheme())}>
               {toggle ? <>&#127770;</> : <>&#127765;</>}
             </button>
           </div>
@@ -139,28 +148,36 @@ function Home() {
           </div>
         )}
       </div>
-      <div>
-        {reverseOn
-          ? [...selectedTimezone]
-              .reverse()
-              .map((timezone, id) => (
-                <TimeZoneSlider
-                  key={id}
-                  timezone={timezone}
-                  onRemove={() => removeTimezone(Object.keys(timezone)[0])}
-                />
-              ))
-          : selectedTimezone.map((timezone, id) => (
-              <TimeZoneSlider
-                key={id}
-                timezone={timezone}
-                onRemove={() => removeTimezone(Object.keys(timezone)[0])}
-              />
-            ))}
-      </div>
+      <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="zone">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            {reverseOn
+              ? [...selectedTimezone]
+                  .reverse()
+                  .map((timezone, index) => (
+                    <TimeZoneSlider
+                      index={index}
+                      key={index}
+                      timezone={timezone}
+                      onRemove={() => removeTimezone(Object.keys(timezone)[0])}
+                    />
+                  ))
+              : selectedTimezone.map((timezone, index) => (
+                  <TimeZoneSlider
+                    index={index}
+                    key={index}
+                    timezone={timezone}
+                    onRemove={() => removeTimezone(Object.keys(timezone)[0])}
+                  />
+                ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+      </DragDropContext>
     </>
   );
 }
-
 
 export default Home;

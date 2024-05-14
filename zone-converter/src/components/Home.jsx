@@ -56,16 +56,18 @@ function Home() {
   const [reverseOn, setReverseOn] = useState(false);
 
   const onDragEnd = (result) => {
+    console.log(result);
     const { source, destination } = result;
     if (!destination) {
       return;
     }
-
-    const items = Array.from(selectedTimezone);
-    const [reorderedItem] = items.splice(source.index, 1);
-    items.splice(destination.index, 0, reorderedItem);
-
-    setSelectedTimezone(items);
+    let add,active
+    if(source.droppableId==="zone"){
+      add=selectedTimezone[source.index];
+      selectedTimezone.splice(source.index,1);
+    }
+    selectedTimezone.splice(destination.index,0,add);
+    setSelectedTimezone(selectedTimezone);
   };
 
   const removeTimezone = (value) => {

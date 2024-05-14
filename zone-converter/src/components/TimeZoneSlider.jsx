@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Slider from "@mui/material/Slider";
 import { Draggable } from "react-beautiful-dnd";
+import { useDispatch, useSelector } from "react-redux";
+import { setSliderValue } from "../store/slice/slider/sliderSlice";
 
 const timeMarks = [
   { value: 0 * 12, label: "12 AM" }, // Midnight, 0 hours * 12 steps/hour
@@ -20,8 +22,10 @@ function TimeZoneSlider({ index, timezone, onRemove }) {
 
   const timezoneName = Object.keys(timezone)[0];
   const time = timezone[timezoneName];
-
+  const dispatch=useDispatch();
+  const sliderValue=useSelector((state)=>state.slider.sliderValue);
   // convert time to slider value in 5 min scale
+
 
   const convertTimeToSliderValue = (time) => {
     const [timePart, period] = time.split(" ");
@@ -47,11 +51,12 @@ function TimeZoneSlider({ index, timezone, onRemove }) {
       .toString()
       .padStart(2, "0")} ${amPm}`;
   };
-
-  const newtime = calculateTimeFromSlider(sliderChange);
+  const value=(sliderValue+sliderChange);
+ 
+  const newtime = calculateTimeFromSlider(value);
 
   const handleSliderChange = (event, newValue) => {
-    setSlidderChange(newValue);
+    dispatch(setSliderValue(newValue));
   };
   return (
     <Draggable draggableId={Object.keys(timezone)[0].toString()} index={index}>
@@ -63,7 +68,7 @@ function TimeZoneSlider({ index, timezone, onRemove }) {
           style={{ ...provided.draggableProps.style, userSelect: "none" }}
           
         >
-          <div className="flex justify-between my-2" {...provided.dragHandleProps}>
+          <div className="flex justify-between my-2" {...provided.dragHandleProps} >
             <div className="font-medium" >{timezoneName}</div>
             <div className="border-2 border-black px-2">{newtime}</div>
             <button onClick={onRemove}>&#10006;</button>
@@ -75,7 +80,7 @@ function TimeZoneSlider({ index, timezone, onRemove }) {
               marks={timeMarks}
               min={0}
               max={287}
-              value={sliderChange}
+              value={(sliderValue+sliderChange)%288}
               onChange={handleSliderChange}
               getAriaValueText={() => newtime}
             />
